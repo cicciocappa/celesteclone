@@ -1,15 +1,18 @@
 #pragma once
 #include <stdio.h>
 #include <stdarg.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <stdbool.h>
 
 /**************************** DEFINES *******************************/
 
 #ifdef _WIN32
-#define DEBUG_BREAK() __debugbreak() 
+#define DEBUG_BREAK() __debugbreak()
 #elif __linux__
-#define DEBUG_BREAK() __builtin_trap() 
+#define DEBUG_BREAK() __builtin_trap()
 #endif
-
 
 typedef enum
 {
@@ -53,19 +56,97 @@ void _log(char *prefix, char *msg, TextColor textcolor, ...)
 
     // Stampa il messaggio finale
     puts(textBuffer);
-   
 }
 
 #define SM_TRACE(msg, ...) _log("TRACE:", msg, VERDE, ##__VA_ARGS__)
 #define SM_WARN(msg, ...) _log("WARN:", msg, GIALLO, ##__VA_ARGS__)
 #define SM_ERROR(msg, ...) _log("ERROR:", msg, ROSSO, ##__VA_ARGS__)
 
-#define SM_ASSERT(x, msg, ...)       \
-{                                    \
-    if (!(x))                        \
-    {                                \
-       SM_ERROR(msg, ##__VA_ARGS__); \
-       DEBUG_BREAK();                \
-    }                                \
-}                                     
+#define SM_ASSERT(x, msg, ...)            \
+    {                                     \
+        if (!(x))                         \
+        {                                 \
+            SM_ERROR(msg, ##__VA_ARGS__); \
+            DEBUG_BREAK();                \
+        }                                 \
+    }
 
+/******************** BUMP ALLOCATOR *******************************/
+
+typedef struct
+{
+    size_t capacity;
+    size_t used;
+    char *memory;
+} BumpAllocator;
+
+BumpAllocator make_bump_allocator(size_t size)
+{
+    BumpAllocator ba = {};
+    ba.memory = (char *)malloc(size);
+    if (ba.memory)
+    {
+        ba.capacity = size;
+        memset(ba.memory, 0, size);
+    }
+    else
+    {
+        SM_ASSERT(false, "Failed to allocate memory");
+    }
+    return ba;
+}
+
+char *bump_alloc(BumpAllocator *bumpAllocator, size_t size)
+{
+    char *result = NULL;
+    size_t alignedSize = (size + 7) & ~7;
+    if (bumpAllocator->used + alignedSize <= bumpAllocator->capacity)
+    {
+        result = bumpAllocator->memory + bumpAllocator->used;
+        bumpAllocator->used += alignedSize;
+    }
+    else
+    {
+        SM_ASSERT(false, "BumpAllocator full");
+    }
+    return result;
+}
+
+/******************** FILE IO *******************************/
+
+long get_timestamp(char *file)
+{
+    struct stat file_stat = {};
+    stat(file, &file_stat);
+    return file_stat.st_mtime;
+}
+
+bool file_exists(char *filePath)
+{
+    SM_ASSERT(filePath, "No filePath supplied");
+
+    FILE *file = fopen(filePath, "rb");
+    if (!file)
+    {
+        return false;
+    }
+    fclose(file);
+    return true;
+}
+
+long get_file_size(char *filePath)
+{
+    SM_ASSERT(filePath, "No filePath supplied");
+    long fileSize = 0;
+    FILE *file = fopen(filePath, "rb");
+    if (!file)
+    {
+        SM_ERROR("Failed opening file %s", filePath);
+        return 0;
+    }
+    fseek(file, 0, SEEK_END);
+    fileSize = ftell(file);
+    fseek(file, 0, SEEK_SET);
+    fclose(file);
+    return fileSize;
+}

@@ -7,5 +7,5 @@ int main()
     SM_TRACE("prova");
     SM_WARN("prova");
     SM_ERROR("prova %d", n);
-    SM_ASSERT(0, "ASSERTION FAILED");
+    SM_ASSERT(1, "ASSERTION FAILED");
 }
