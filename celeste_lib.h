@@ -150,3 +150,82 @@ long get_file_size(char *filePath)
     fclose(file);
     return fileSize;
 }
+
+char *read_file_in_buffer(char *filePath, size_t *fileSize, char *buffer)
+{
+    SM_ASSERT(filePath, "No filePath supplied");
+    SM_ASSERT(fileSize, "No fileSize supplied");
+    SM_ASSERT(buffer, "No buffer supplied");
+
+    *fileSize = 0;
+    FILE *file = fopen(filePath, "rb");
+    if (!file)
+    {
+        SM_ERROR("Failed opening file %s", filePath);
+        return NULL;
+    }
+    fseek(file, 0, SEEK_END);
+    *fileSize = ftell(file);
+    fseek(file, 0, SEEK_SET);
+    memset(buffer, 0, *fileSize + 1);
+    fread(buffer, sizeof(char), *fileSize, file);
+    fclose(file);
+}
+
+void write_file(char *filePath, char *buffer, size_t size)
+{
+    SM_ASSERT(filePath, "No filePath supplied");
+    SM_ASSERT(buffer, "No buffer supplied");
+    FILE *file = fopen(filePath, "wb");
+    if (!file)
+    {
+        SM_ERROR("Failed opening file %s", filePath);
+        return;
+    }
+    fwrite(buffer, sizeof(char), size, file);
+    fclose(file);
+}
+
+char *read_file(char *filePath, size_t *fileSize, BumpAllocator *bumpAllocator)
+{
+    char *file = NULL;
+    long fileSize2 = get_file_size(filePath);
+    if (fileSize2)
+    {
+        char *buffer = bump_alloc(bumpAllocator, fileSize2 + 1);
+        file = read_file_in_buffer(filePath, fileSize, buffer);
+    }
+    return file;
+}
+
+bool copy_file_in_buffer(char *srcPath, char *destPath, char *buffer)
+{
+    size_t fileSize = 0;
+    char *data = read_file(srcPath, &fileSize, buffer);
+    FILE *output = fopen(destPath, "wb");
+    if (!output)
+    {
+        SM_ERROR("Failed opening file %s", destPath);
+        return false;
+    }
+    size_t result = fwrite(data, sizeof(char), fileSize, output);
+    if (!result)
+    {
+        SM_ERROR("Failed writing file %s", destPath);
+        return false;
+    }
+    fclose(output);
+    return true;
+}
+
+bool copy_file(char *srcPath, char *destPath, BumpAllocator *bumpAllocator)
+{
+    char *file = NULL;
+    long fileSize2 = get_file_size(srcPath);
+    if (fileSize2)
+    {
+        char *buffer = bump_alloc(bumpAllocator, fileSize2 + 1);
+        return copy_file_in_buffer(srcPath, destPath, buffer);
+    }
+    return false;
+}
