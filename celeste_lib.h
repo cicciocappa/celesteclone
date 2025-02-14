@@ -73,43 +73,82 @@ void _log(char *prefix, char *msg, TextColor textcolor, ...)
 
 /******************** BUMP ALLOCATOR *******************************/
 
+// Struttura per rappresentare il bump allocator
 typedef struct
 {
-    size_t capacity;
-    size_t used;
-    char *memory;
+    char *start; // Puntatore all'inizio dell'area pre-allocata
+    char *ptr;   // Puntatore corrente (usato per allocare)
+    size_t size; // Dimensione totale dell'area pre-allocata
 } BumpAllocator;
 
-BumpAllocator make_bump_allocator(size_t size)
+// Inizializza il bump allocator con una certa dimensione
+BumpAllocator *bump_allocator_create(size_t size)
 {
-    BumpAllocator ba = {};
-    ba.memory = (char *)malloc(size);
-    if (ba.memory)
+    printf("creating...");
+    BumpAllocator *allocator = malloc(sizeof(BumpAllocator));
+    if (!allocator)
     {
-        ba.capacity = size;
-        memset(ba.memory, 0, size);
+        return NULL;
     }
-    else
+
+    // Allocare l'area di memoria
+    allocator->start = malloc(size);
+    if (!allocator->start)
     {
-        SM_ASSERT(false, "Failed to allocate memory");
+        free(allocator);
+        return NULL;
     }
-    return ba;
+
+    allocator->ptr = allocator->start; // Inizializza il puntatore all'inizio
+    allocator->size = size;
+
+    return allocator;
 }
 
-char *bump_alloc(BumpAllocator *bumpAllocator, size_t size)
+// Alloca una quantità di memoria specificata
+void *bump_allocator_alloc(BumpAllocator *allocator, size_t size)
 {
-    char *result = NULL;
-    size_t alignedSize = (size + 7) & ~7;
-    if (bumpAllocator->used + alignedSize <= bumpAllocator->capacity)
+    if (!allocator || !allocator->start || size == 0)
     {
-        result = bumpAllocator->memory + bumpAllocator->used;
-        bumpAllocator->used += alignedSize;
+        return NULL;
     }
-    else
+
+    // Allinea la dimensione richiesta al multiplo più vicino di sizeof(void*)
+    size_t aligned_size = (size + sizeof(void *) - 1) & ~(sizeof(void *) - 1);
+
+    // Controlla se c'è abbastanza spazio disponibile
+    if ((allocator->ptr + aligned_size) > (allocator->start + allocator->size))
     {
-        SM_ASSERT(false, "BumpAllocator full");
+        return NULL; // Non c'è abbastanza spazio
     }
+
+    // Salva l'indirizzo corrente e sposta il puntatore
+    void *result = allocator->ptr;
+    allocator->ptr += aligned_size;
+
     return result;
+}
+ 
+// Resetta il bump allocator, deallocando tutta la memoria
+void bump_allocator_reset(BumpAllocator *allocator)
+{
+    if (allocator)
+    {
+        allocator->ptr = allocator->start; // Ripristina il puntatore all'inizio
+    }
+}
+
+// Distrugge completamente il bump allocator, liberando l'area pre-allocata
+void bump_allocator_destroy(BumpAllocator *allocator)
+{
+    if (allocator)
+    {
+        if (allocator->start)
+        {
+            free(allocator->start); // Libera l'area pre-allocata
+        }
+        free(allocator); // Libera la struttura del bump allocator
+    }
 }
 
 /******************** FILE IO *******************************/
@@ -192,7 +231,7 @@ char *read_file(char *filePath, size_t *fileSize, BumpAllocator *bumpAllocator)
     long fileSize2 = get_file_size(filePath);
     if (fileSize2)
     {
-        char *buffer = bump_alloc(bumpAllocator, fileSize2 + 1);
+        char *buffer = bump_allocator_alloc(bumpAllocator, fileSize2 + 1);
         file = read_file_in_buffer(filePath, fileSize, buffer);
     }
     return file;
@@ -201,7 +240,8 @@ char *read_file(char *filePath, size_t *fileSize, BumpAllocator *bumpAllocator)
 bool copy_file_in_buffer(char *srcPath, char *destPath, char *buffer)
 {
     size_t fileSize = 0;
-    char *data = read_file(srcPath, &fileSize, buffer);
+    char *data = read_file_in_buffer(srcPath, &fileSize, buffer);
+    printf("read %p tot %d",data,fileSize);
     FILE *output = fopen(destPath, "wb");
     if (!output)
     {
@@ -220,11 +260,20 @@ bool copy_file_in_buffer(char *srcPath, char *destPath, char *buffer)
 
 bool copy_file(char *srcPath, char *destPath, BumpAllocator *bumpAllocator)
 {
+    printf("in copy");
+    
     char *file = NULL;
+    printf("provo a leggere size");
+    
     long fileSize2 = get_file_size(srcPath);
+    
+    printf("dim %d", fileSize2);
+   
     if (fileSize2)
     {
-        char *buffer = bump_alloc(bumpAllocator, fileSize2 + 1);
+        char *buffer = bump_allocator_alloc(bumpAllocator, fileSize2 + 1);
+        return false;
+        printf("point: %p", buffer);
         return copy_file_in_buffer(srcPath, destPath, buffer);
     }
     return false;
