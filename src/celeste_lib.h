@@ -84,7 +84,7 @@ typedef struct
 // Inizializza il bump allocator con una certa dimensione
 BumpAllocator *bump_allocator_create(size_t size)
 {
-    printf("creating...");
+    
     BumpAllocator *allocator = malloc(sizeof(BumpAllocator));
     if (!allocator)
     {
@@ -190,25 +190,48 @@ long get_file_size(char *filePath)
     return fileSize;
 }
 
-char *read_file_in_buffer(char *filePath, size_t *fileSize, char *buffer)
+char *read_file(const char* filename, BumpAllocator* allocator, size_t* fileSize)
 {
-    SM_ASSERT(filePath, "No filePath supplied");
-    SM_ASSERT(fileSize, "No fileSize supplied");
-    SM_ASSERT(buffer, "No buffer supplied");
+    if (!filename || !allocator || !fileSize) {
+        return NULL;  // Parametri non validi
+    }
 
-    *fileSize = 0;
-    FILE *file = fopen(filePath, "rb");
-    if (!file)
-    {
-        SM_ERROR("Failed opening file %s", filePath);
+    // Apri il file in modalità binaria
+    FILE* file = fopen(filename, "rb");
+    if (!file) {
+        fprintf(stderr, "Impossibile aprire il file: %s\n", filename);
         return NULL;
     }
-    fseek(file, 0, SEEK_END);
-    *fileSize = ftell(file);
-    fseek(file, 0, SEEK_SET);
-    memset(buffer, 0, *fileSize + 1);
-    fread(buffer, sizeof(char), *fileSize, file);
+
+    // Ottieni la dimensione del file
+    fseek(file, 0, SEEK_END);  // Vai alla fine del file
+    *fileSize = ftell(file);   // Ottieni la posizione (dimensione del file)
+    rewind(file);              // Torna all'inizio del file
+
+    if (*fileSize == -1) {
+        fclose(file);
+        return NULL;  // Errore nel determinare la dimensione del file
+    }
+
+    // Alloca spazio sufficiente nel bump allocator
+    void* buffer = bump_allocator_alloc(allocator, *fileSize);
+    if (!buffer) {
+        fclose(file);
+        fprintf(stderr, "Impossibile allocare memoria per il file\n");
+        return NULL;
+    }
+
+    // Leggi il contenuto del file nel buffer
+    size_t bytesRead = fread(buffer, 1, *fileSize, file);
+    if (bytesRead != *fileSize) {
+        fprintf(stderr, "Errore durante la lettura del file\n");
+        fclose(file);
+        return NULL;
+    }
+
+    // Chiudi il file e restituisci il buffer
     fclose(file);
+    return buffer;
 }
 
 void write_file(char *filePath, char *buffer, size_t size)
@@ -225,56 +248,40 @@ void write_file(char *filePath, char *buffer, size_t size)
     fclose(file);
 }
 
-char *read_file(char *filePath, size_t *fileSize, BumpAllocator *bumpAllocator)
-{
-    char *file = NULL;
-    long fileSize2 = get_file_size(filePath);
-    if (fileSize2)
-    {
-        char *buffer = bump_allocator_alloc(bumpAllocator, fileSize2 + 1);
-        file = read_file_in_buffer(filePath, fileSize, buffer);
+int copy_file(const char* source_filename, const char* dest_filename, BumpAllocator* allocator) {
+    if (!source_filename || !dest_filename || !allocator) {
+        fprintf(stderr, "Parametri non validi\n");
+        return -1;  // Errore: parametri non validi
     }
-    return file;
-}
 
-bool copy_file_in_buffer(char *srcPath, char *destPath, char *buffer)
-{
-    size_t fileSize = 0;
-    char *data = read_file_in_buffer(srcPath, &fileSize, buffer);
-    printf("read %p tot %d",data,fileSize);
-    FILE *output = fopen(destPath, "wb");
-    if (!output)
-    {
-        SM_ERROR("Failed opening file %s", destPath);
-        return false;
-    }
-    size_t result = fwrite(data, sizeof(char), fileSize, output);
-    if (!result)
-    {
-        SM_ERROR("Failed writing file %s", destPath);
-        return false;
-    }
-    fclose(output);
-    return true;
-}
+    size_t fileSize;
+    void* buffer = read_file(source_filename, allocator, &fileSize);
 
-bool copy_file(char *srcPath, char *destPath, BumpAllocator *bumpAllocator)
-{
-    printf("in copy");
-    
-    char *file = NULL;
-    printf("provo a leggere size");
-    
-    long fileSize2 = get_file_size(srcPath);
-    
-    printf("dim %d", fileSize2);
-   
-    if (fileSize2)
-    {
-        char *buffer = bump_allocator_alloc(bumpAllocator, fileSize2 + 1);
-        return false;
-        printf("point: %p", buffer);
-        return copy_file_in_buffer(srcPath, destPath, buffer);
+    if (!buffer) {
+        fprintf(stderr, "Impossibile leggere il file sorgente: %s\n", source_filename);
+        return -1;
     }
-    return false;
+
+    // Apri il file di destinazione in modalità scrittura binaria
+    FILE* dest_file = fopen(dest_filename, "wb");
+    if (!dest_file) {
+        fprintf(stderr, "Impossibile aprire il file di destinazione: %s\n", dest_filename);
+        return -1;
+    }
+
+    // Scrivi il contenuto del buffer nel file di destinazione
+    size_t bytesWritten = fwrite(buffer, 1, fileSize, dest_file);
+    if (bytesWritten != fileSize) {
+        fprintf(stderr, "Errore durante la scrittura del file di destinazione\n");
+        fclose(dest_file);
+        return -1;
+    }
+
+    // Chiudi il file di destinazione
+    fclose(dest_file);
+
+    printf("File '%s' copiato con successo in '%s'. Dimensione: %zu byte\n", 
+           source_filename, dest_filename, fileSize);
+
+    return 0;  // Successo
 }
