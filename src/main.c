@@ -48,7 +48,7 @@ int main()
     }
 
     Sprite *sprites = (Sprite *)malloc(MAX_SPRITES * sizeof(Sprite));
-    size_t numSprites = 100;
+    size_t numSprites = 10;
 
     for (size_t i = 0; i < numSprites; ++i)
     {
@@ -59,7 +59,9 @@ int main()
             (float)rand() / RAND_MAX, // Random blue component
             1.0f                      // Full opacity
         };
-        sprite_init(&sprites[i], 20.0f + i * 5.0f, 100.0f + i * 2.0f, 32.0f, 32.0f, color);
+        size_t px = i % 10;
+        size_t py = i / 10;
+        sprite_init(&sprites[i], 20.0f + px * 30.0f, 20.0f + py * 30.0f, 32.0f, 16.0f, color);
     }
 
     // --- Main Loop ---

@@ -5,14 +5,15 @@ layout (location = 1) in vec2 aTexCoord;
 
 // Define the struct before using it in the buffer
 struct SpriteData {
+    vec4 color;
     vec2 position;
     vec2 size;
     float rotation;
     float padding[3];
-    vec4 color;
+    
 };
 
-layout (std140, binding = 0) buffer SpriteBuffer {
+layout (std430, binding = 0) buffer SpriteBuffer {
     SpriteData sprites[];
 };
 

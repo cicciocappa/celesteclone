@@ -4,12 +4,13 @@
 #include <linmath.h>
 
 typedef struct {
-    vec2 position;    // 8 bytes, offset 0
-    vec2 size;        // 8 bytes, offset 8
-    float rotation;   // 4 bytes, offset 16
-    float padding[3]; // 12 bytes padding, offset 20 
+    vec4 color;       // 16 bytes, offset 0
+    vec2 position;    // 8 bytes, offset 16
+    vec2 size;        // 8 bytes, offset 24
+    float rotation;   // 4 bytes, offset 32
+    float padding[3]; // 12 bytes padding, offset 36 
                       // (to make vec4 start at multiple of 16)
-    vec4 color;       // 16 bytes, offset 32
+   
 } Sprite;            // Total: 48 bytes
 
 // Function declarations related to Sprite *data* manipulation
