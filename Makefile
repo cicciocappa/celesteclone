@@ -2,7 +2,7 @@
 
 CC = gcc
 CFLAGS = -Wall -Wextra -g -Iinclude  # Compiler flags: warnings, debug info, include path
-LDFLAGS = -lglfw -lGL -ldl        # Linker flags (libraries)
+LDFLAGS = -lglfw -lGL -ldl -lm       # Linker flags (libraries)
 
 SRC_DIR = src
 BUILD_DIR = build

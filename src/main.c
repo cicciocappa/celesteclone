@@ -52,6 +52,7 @@ int main()
 
     for (size_t i = 0; i < numSprites; ++i)
     {
+        /*
         // Then in your sprite initialization loop
         vec4 color = {
             (float)rand() / RAND_MAX, // Random red component
@@ -59,9 +60,13 @@ int main()
             (float)rand() / RAND_MAX, // Random blue component
             1.0f                      // Full opacity
         };
+        */
         size_t px = i % 10;
         size_t py = i / 10;
-        sprite_init(&sprites[i], 20.0f + px * 30.0f, 20.0f + py * 30.0f, 32.0f, 16.0f, color);
+        vec2 uvStart = {0.1f, 0.1f};
+        vec2 uvEnd = {0.9f, 0.9f};
+        float layerIndex = 0.0f;
+        sprite_init(&sprites[i], 20.0f + px * 80.0f, 20.0f + py * 80.0f, 64.0f, 64.0f, uvStart, uvEnd, layerIndex);
     }
 
     // --- Main Loop ---

@@ -1,9 +1,42 @@
-// Fragment Shader (sprite.frag)
-#version 330 core
+#version 430 core
 
-in vec4 fragColor;
+in vec2 texCoord;
+in flat int spriteID;
+
 out vec4 FragColor;
 
+// Define the sprite data structure
+struct SpriteData {
+    vec2 uvStart;
+    vec2 uvEnd;
+    float layerIndex;
+    float padding;
+    vec2 position;
+    vec2 size;
+    float rotation;
+    float padding2[3];
+};
+
+layout (std430, binding = 0) buffer SpriteBuffer {
+    SpriteData sprites[];
+};
+
+// Texture array sampler
+uniform sampler2DArray textureArray;
+
 void main() {
-    FragColor = fragColor;
+    // Get the sprite data
+    SpriteData sprite = sprites[spriteID];
+    
+    // Interpolate between uvStart and uvEnd using texCoord
+    vec2 finalUV = mix(sprite.uvStart, sprite.uvEnd, texCoord);
+    
+    // Sample the texture using the final UV and layer index
+    vec4 texColor = texture(textureArray, vec3(finalUV, sprite.layerIndex));
+
+    if (texColor.a < 0.5) // o qualsiasi altra soglia
+    discard;
+    
+    // Output the final color
+    FragColor = texColor;
 }

@@ -5,12 +5,14 @@ layout (location = 1) in vec2 aTexCoord;
 
 // Define the struct before using it in the buffer
 struct SpriteData {
-    vec4 color;
+    vec2 uvStart;
+    vec2 uvEnd;
+    float layerIndex;
+    float padding;
     vec2 position;
     vec2 size;
     float rotation;
-    float padding[3];
-    
+    float padding2[3];
 };
 
 layout (std430, binding = 0) buffer SpriteBuffer {
@@ -19,7 +21,8 @@ layout (std430, binding = 0) buffer SpriteBuffer {
 
 uniform mat4 projection;
 
-out vec4 fragColor;
+out vec2 texCoord;
+out flat int spriteID;
 
 // Define the matrix transformation functions
 mat4 translate(mat4 m, vec3 v) {
@@ -54,6 +57,9 @@ mat4 scale(mat4 m, vec3 v) {
 }
 
 void main() {
+    // Store the sprite ID for the fragment shader
+    spriteID = gl_InstanceID;
+    
     // Calculate the model matrix
     mat4 model = mat4(1.0);
 
@@ -68,5 +74,7 @@ void main() {
 
     // Apply transformations
     gl_Position = projection * model * vec4(aPos, 0.0, 1.0);
-    fragColor = sprites[gl_InstanceID].color;
+    
+    // Pass the texture coordinates to the fragment shader
+    texCoord = aTexCoord;
 }
