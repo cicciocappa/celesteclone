@@ -10,7 +10,7 @@ struct SpriteData {
     vec2 uvStart;
     vec2 uvEnd;
     float layerIndex;
-    float padding;
+    float parallaxFactor;
     vec2 position;
     vec2 size;
     float rotation;

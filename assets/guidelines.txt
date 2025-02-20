@@ -1,3 +1,26 @@
+GameWorld ->
+
+camera
+player
+
+
+
+schermate[]-
+
+layers[]
+oggetti[]
+nemici[]
+
+cominciamo nel modo più semplice....
+il GameWorld ha un'array di oggetti 
+e una camera...
+gli oggetti hanno solo uno sprite
+
+
+
+
+
+
 #define GLAD_GL_IMPLEMENTATION
 #include "./glad/include/glad/gl.h"
 #define GLFW_INCLUDE_NONE

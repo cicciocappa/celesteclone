@@ -3,8 +3,10 @@
 #define ENTITIES_H
 
 #include <stdbool.h>
+#include <math.h>
+#include <linmath.h>
 
-#define MAX_PLAYERS 1
+ 
 #define MAX_ENEMIES 50
 #define MAX_PROJECTILES 100
 
@@ -42,7 +44,8 @@ typedef struct {
 } Projectile;
 
 typedef struct {
-    Player players[MAX_PLAYERS];
+   
+    Player player;
     int player_count;
     
     Enemy enemies[MAX_ENEMIES];

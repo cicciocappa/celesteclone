@@ -1,11 +1,15 @@
 
 
 #include "renderer.h"
+#include "game.h"
 #include <stdio.h> //for error messages
 #include <stdlib.h>
 #include <string.h> // For strdup
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+
+
+GLint cameraPosLoc;
 
 // Helper function to read the entire contents of a file into a string
 char *read_file_to_string(const char *filename)
@@ -197,6 +201,7 @@ int renderer_init(Renderer *renderer, size_t maxSprites, int screenWidth, int sc
 
     glUseProgram(renderer->shaderProgram); // Use the program to set uniforms
     glUniformMatrix4fv(glGetUniformLocation(renderer->shaderProgram, "projection"), 1, GL_FALSE, (const GLfloat *)renderer->projection);
+    cameraPosLoc = glGetUniformLocation(renderer->shaderProgram, "cameraPos");
     glUseProgram(0); // Unbind
 
     // Clean up individual shaders (they are linked in the program)
@@ -273,6 +278,8 @@ void renderer_begin_frame(Renderer *renderer)
 {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+    
+    glUniform2f(cameraPosLoc, game.camera_pos[0], game.camera_pos[1]);
 }
 
 void renderer_draw_sprites(Renderer *renderer, Sprite *sprites, size_t numSprites)

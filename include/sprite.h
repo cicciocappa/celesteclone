@@ -7,7 +7,7 @@ typedef struct {
     vec2 uvStart;       // 8 bytes, offset 0
     vec2 uvEnd;         // 8 bytes, offset 8
     float layerIndex;   // 4 bytes, offset 16 (ora è un float per compatibilità con GLSL)
-    float padding;      // 4 bytes, offset 20
+    float parallaxFactor;// 4 bytes, offset 20
     vec2 position;      // 8 bytes, offset 24
     vec2 size;          // 8 bytes, offset 32
     float rotation;     // 4 bytes, offset 36

@@ -8,7 +8,7 @@ struct SpriteData {
     vec2 uvStart;
     vec2 uvEnd;
     float layerIndex;
-    float padding;
+    float parallaxFactor;
     vec2 position;
     vec2 size;
     float rotation;
@@ -20,6 +20,7 @@ layout (std430, binding = 0) buffer SpriteBuffer {
 };
 
 uniform mat4 projection;
+uniform vec2 cameraPos;  // Solo questa uniform per la camera
 
 out vec2 texCoord;
 out flat int spriteID;
@@ -57,24 +58,19 @@ mat4 scale(mat4 m, vec3 v) {
 }
 
 void main() {
-    // Store the sprite ID for the fragment shader
     spriteID = gl_InstanceID;
     
-    // Calculate the model matrix
+    // Calcola la posizione finale dello sprite considerando parallasse e camera
+    vec2 parallaxPosition = sprites[gl_InstanceID].position - (cameraPos * sprites[gl_InstanceID].parallaxFactor);
+    
+    // Calcola la model matrix
     mat4 model = mat4(1.0);
-
-    // Translation
-    model = translate(model, vec3(sprites[gl_InstanceID].position, 0.0));
-
-    // Rotation (around the Z-axis)
+    model = translate(model, vec3(parallaxPosition, 0.0));
     model = rotate(model, sprites[gl_InstanceID].rotation, vec3(0.0, 0.0, 1.0));
-
-    // Scale
     model = scale(model, vec3(sprites[gl_InstanceID].size, 1.0));
 
-    // Apply transformations
+    // Applica le trasformazioni (nota: non c'è più la view matrix)
     gl_Position = projection * model * vec4(aPos, 0.0, 1.0);
     
-    // Pass the texture coordinates to the fragment shader
     texCoord = aTexCoord;
 }

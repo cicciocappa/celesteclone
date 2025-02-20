@@ -1,5 +1,8 @@
 {
     "files.associations": {
-        "gl_renderer.h": "c"
+        "gl_renderer.h": "c",
+        "renderer.h": "c",
+        "sprite.h": "c",
+        "game.h": "c"
     }
 }
