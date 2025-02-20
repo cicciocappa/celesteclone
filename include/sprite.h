@@ -15,7 +15,7 @@ typedef struct {
 } Sprite; // Total: 52 bytes
 
 // Function declarations related to Sprite *data* manipulation
-void sprite_init(Sprite* sprite, float x, float y, float width, float height, vec2 uvStart, vec2 uvEnd, float layerIndex); // Example
+void sprite_init(Sprite* sprite, float x, float y, float width, float height, vec2 uvStart, vec2 uvEnd, float layerIndex, float parallax); // Example
 void sprite_update(Sprite* sprite, float deltaTime); // Example: Update position, rotation, etc.
 // ... other Sprite-specific functions ...
 

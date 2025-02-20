@@ -6,20 +6,26 @@
 #include <stdlib.h>
 
 Game game;
+Sprite drawing[16384];
+size_t count_drawing;
 
 // Funzione di callback per gli eventi di tastiera
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+    {
         printf("Tasto SPAZIO premuto\n");
     }
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-        //glfwSetWindowShouldClose(window, GLFW_TRUE); // Chiude la finestra
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+    {
+        // glfwSetWindowShouldClose(window, GLFW_TRUE); // Chiude la finestra
         game.running = false;
     }
 }
 
-bool init_game() {
-    game.running = true;
+bool init_game()
+{
+
     srand(time(NULL)); // Seed the random number generator
     // --- GLFW Initialization --- (your boilerplate)
     glfwInit();
@@ -55,7 +61,7 @@ bool init_game() {
 
     // Crea la finestra in modalità fullscreen
     GLFWwindow *window = glfwCreateWindow(mode->width, mode->height, "Finestra Fullscreen", primaryMonitor, NULL);
-    
+
     if (window == NULL)
     {
         fprintf(stderr, "Failed to create GLFW window\n");
@@ -72,20 +78,35 @@ bool init_game() {
         return false;
     }
 
-    //printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
-    //printf("GLSL Version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+    // printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
+    // printf("GLSL Version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
     glViewport(0, 0, game.screenWidth, game.screenHeight);
+
+    game.running = true;
+   
+    init_game_world(&game.world);
+    renderer_init(&game.renderer, 16384, game.screenWidth, game.screenHeight);
     return true;
 }
 
-void update(float deltaTime){
-
-}
-
-void render(){
+void update(float deltaTime)
+{
+    for (size_t i=0; i < 20; i++) {
+        sprite_update(&game.world.decorazioni[i], deltaTime);
+    }
     
 }
 
-void cleanup(){
+void render()
+{
+
+    renderer_begin_frame(&game.renderer);
+    count_drawing = renderer_set_sprites(&game.world, drawing);
+    renderer_draw_sprites(&game.renderer, drawing, count_drawing);
+    renderer_end_frame(&game.renderer);
+}
+
+void cleanup()
+{
     glfwTerminate();
 }

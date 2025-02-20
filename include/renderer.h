@@ -4,6 +4,7 @@
 #include <glad/glad.h> // Include OpenGL headers here
 #include <GLFW/glfw3.h>
 #include "sprite.h"     // Include the Sprite struct definition
+#include "entities.h"
 #include <linmath.h>
 
 typedef struct {
@@ -20,5 +21,6 @@ void renderer_begin_frame(Renderer* renderer); //Might be used to setup things n
 void renderer_draw_sprites(Renderer* renderer, Sprite* sprites, size_t numSprites);
 void renderer_end_frame(Renderer* renderer);   //Might be used to execute drawing commands
 void renderer_cleanup(Renderer* renderer);
+size_t renderer_set_sprites(GameWorld* world, Sprite* drawing);
 
 #endif // RENDERER_H

@@ -8,7 +8,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-
 GLint cameraPosLoc;
 
 // Helper function to read the entire contents of a file into a string
@@ -140,12 +139,14 @@ void init_instance_buffer(Renderer *renderer)
 void update_instance_buffer(Renderer *renderer, Sprite *sprites, size_t numSprites)
 {
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, renderer->instanceSSBO);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, renderer->maxSprites * sizeof(Sprite), NULL, GL_DYNAMIC_DRAW);
     glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, numSprites * sizeof(Sprite), sprites);
 
     // Check for errors
     GLenum err = glGetError();
     if (err != GL_NO_ERROR)
     {
+        fprintf(stderr, "pointer: %p num %d in %d\n", sprites, numSprites, renderer->instanceSSBO);
         fprintf(stderr, "OpenGL error in update_instance_buffer: 0x%04X\n", err);
     }
 
@@ -278,7 +279,7 @@ void renderer_begin_frame(Renderer *renderer)
 {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    
+
     glUniform2f(cameraPosLoc, game.camera_pos[0], game.camera_pos[1]);
 }
 
@@ -303,4 +304,14 @@ void renderer_cleanup(Renderer *renderer)
     glDeleteVertexArrays(1, &renderer->quadVAO);
     glDeleteBuffers(1, &renderer->instanceSSBO);
     glDeleteProgram(renderer->shaderProgram);
+}
+
+size_t renderer_set_sprites(GameWorld *world, Sprite *drawing)
+{
+    size_t count = 0;
+    memcpy(drawing, world->decorazioni, sizeof(Sprite) * world->count_decorazioni);
+    count += world->count_decorazioni;
+    // Copia i nemici nel buffer dopo le decorazioni
+    //memcpy(drawing + count, enemies, sizeof(Sprite) * world->count_enemies;
+    return count;
 }

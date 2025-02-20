@@ -5,6 +5,9 @@
 #include <stdbool.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include "linmath.h"
+#include "entities.h"
+#include "renderer.h"
 
 // Definizione dell'enumerazione GameState
 typedef enum
@@ -24,6 +27,9 @@ typedef struct
     GLFWwindow *window;
     bool running;
     vec2 camera_pos;
+    GameWorld world;
+    Renderer renderer;
+  
 } Game;
 
 extern Game game;

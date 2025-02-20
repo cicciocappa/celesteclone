@@ -5,10 +5,11 @@
 #include <stdbool.h>
 #include <math.h>
 #include <linmath.h>
-
+#include <sprite.h>
  
 #define MAX_ENEMIES 50
 #define MAX_PROJECTILES 100
+#define MAX_STATIC_OBJECTS 8192
 
 typedef struct {
     float x, y;
@@ -43,17 +44,30 @@ typedef struct {
     // Aggiungi altri attributi specifici del proiettile
 } Projectile;
 
+typedef Sprite EntitaStatica;
+
+
+// possiamo utilizzare un unico array per gli sprite
+// e poi un array diverso per ciascun tipo oggetto
+// gli oggetti memorizzano l'indice al relativo sprite nell'array per poterlo modificare quando serve
+
 typedef struct {
    
     Player player;
-    int player_count;
+    
     
     Enemy enemies[MAX_ENEMIES];
     int enemy_count;
     
     Projectile projectiles[MAX_PROJECTILES];
     int projectile_count;
+
+    EntitaStatica decorazioni[MAX_STATIC_OBJECTS];
+    size_t count_decorazioni;
+   
 } GameWorld;
+
+
 
 // Funzioni di inizializzazione
 void init_game_world(GameWorld* world);
