@@ -14,7 +14,8 @@ void init_game_world(GameWorld *world)
         vec2 uvStart = {0.0f, 0.0f};
         vec2 uvEnd = {1.0f / 8.0f, 1.0f / 8.0f};
         float layerIndex = (float)(rand() % 4);
-        sprite_init(&world->decorazioni[i], 20.0f + px * 40.0f, 20.0f + py * 40.0f, 32.0f, 32.0f, uvStart, uvEnd, layerIndex, 1.0);
+        float parallax = 1.0f- (float)(rand()%2)*0.5f;
+        sprite_init(&world->decorazioni[i], 20.0f + px * 40.0f, 20.0f + py * 40.0f, 32.0f, 32.0f, uvStart, uvEnd, layerIndex, parallax, parallax, parallax);
     }
     (*world).count_decorazioni = 200;
 }

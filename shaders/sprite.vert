@@ -3,16 +3,18 @@
 layout (location = 0) in vec2 aPos;
 layout (location = 1) in vec2 aTexCoord;
 
-// Define the struct before using it in the buffer
+// Define the sprite data structure
 struct SpriteData {
     vec2 uvStart;
     vec2 uvEnd;
     float layerIndex;
-    float parallaxFactor;
+    float zIndex;
     vec2 position;
     vec2 size;
     float rotation;
-    float padding2[3];
+    float parallaxFactorX;
+    float parallaxFactorY;
+    float padding2;
 };
 
 layout (std430, binding = 0) buffer SpriteBuffer {
@@ -60,8 +62,11 @@ mat4 scale(mat4 m, vec3 v) {
 void main() {
     spriteID = gl_InstanceID;
     
-    // Calcola la posizione finale dello sprite considerando parallasse e camera
-    vec2 parallaxPosition = sprites[gl_InstanceID].position - (cameraPos * sprites[gl_InstanceID].parallaxFactor);
+    /// Calcola la posizione con parallasse separato per X e Y
+    vec2 parallaxPosition = sprites[gl_InstanceID].position - vec2(
+        cameraPos.x * sprites[gl_InstanceID].parallaxFactorX,
+        cameraPos.y * sprites[gl_InstanceID].parallaxFactorY
+    );
     
     // Calcola la model matrix
     mat4 model = mat4(1.0);
@@ -69,8 +74,9 @@ void main() {
     model = rotate(model, sprites[gl_InstanceID].rotation, vec3(0.0, 0.0, 1.0));
     model = scale(model, vec3(sprites[gl_InstanceID].size, 1.0));
 
-    // Applica le trasformazioni (nota: non c'è più la view matrix)
-    gl_Position = projection * model * vec4(aPos, 0.0, 1.0);
+     // Usa zIndex per la profondità
+    vec4 pos = projection * model * vec4(aPos, sprites[gl_InstanceID].zIndex, 1.0);
+    gl_Position = pos;
     
     texCoord = aTexCoord;
 }

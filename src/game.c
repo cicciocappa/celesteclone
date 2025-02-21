@@ -8,18 +8,26 @@
 Game game;
 Sprite drawing[16384];
 size_t count_drawing;
+bool keypressed[GLFW_KEY_LAST];
 
 // Funzione di callback per gli eventi di tastiera
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
-    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
-    {
-        printf("Tasto SPAZIO premuto\n");
-    }
+
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     {
         // glfwSetWindowShouldClose(window, GLFW_TRUE); // Chiude la finestra
         game.running = false;
+        return;
+    }
+
+    if (action == GLFW_PRESS)
+    {
+        keypressed[key] = true;
+    }
+    if (action == GLFW_RELEASE)
+    {
+        keypressed[key] = false;
     }
 }
 
@@ -58,6 +66,9 @@ bool init_game()
     glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
     glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
     glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+    // Prima di creare la finestra
+    glfwWindowHint(GLFW_DEPTH_BITS, 24);  // Richiedi un depth buffer da 24 bit
+
 
     // Crea la finestra in modalità fullscreen
     GLFWwindow *window = glfwCreateWindow(mode->width, mode->height, "Finestra Fullscreen", primaryMonitor, NULL);
@@ -83,7 +94,7 @@ bool init_game()
     glViewport(0, 0, game.screenWidth, game.screenHeight);
 
     game.running = true;
-   
+
     init_game_world(&game.world);
     renderer_init(&game.renderer, 16384, game.screenWidth, game.screenHeight);
     return true;
@@ -91,10 +102,18 @@ bool init_game()
 
 void update(float deltaTime)
 {
-    for (size_t i=0; i < 20; i++) {
+    for (size_t i = 0; i < 20; i++)
+    {
         sprite_update(&game.world.decorazioni[i], deltaTime);
     }
-    
+    if (keypressed[GLFW_KEY_LEFT])
+        game.camera_pos[0] -= 5.0f * deltaTime;
+    if (keypressed[GLFW_KEY_RIGHT])
+        game.camera_pos[0] += 5.0f * deltaTime;
+    if (keypressed[GLFW_KEY_UP])
+        game.camera_pos[1] -= 5.0f * deltaTime;
+    if (keypressed[GLFW_KEY_DOWN])
+        game.camera_pos[1] += 5.0f * deltaTime;
 }
 
 void render()

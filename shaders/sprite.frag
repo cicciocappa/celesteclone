@@ -10,11 +10,13 @@ struct SpriteData {
     vec2 uvStart;
     vec2 uvEnd;
     float layerIndex;
-    float parallaxFactor;
+    float zIndex;
     vec2 position;
     vec2 size;
     float rotation;
-    float padding2[3];
+    float parallaxFactorX;
+    float parallaxFactorY;
+    float padding2;
 };
 
 layout (std430, binding = 0) buffer SpriteBuffer {

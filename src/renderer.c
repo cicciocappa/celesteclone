@@ -198,7 +198,8 @@ int renderer_init(Renderer *renderer, size_t maxSprites, int screenWidth, int sc
     }
 
     // Set up projection matrix (once, since it doesn't change)
-    mat4x4_ortho(renderer->projection, 0.0f, (float)screenWidth, (float)screenHeight, 0.0f, -1.0f, 1.0f);
+    // zoom = 2
+    mat4x4_ortho(renderer->projection, 0.0f, (float)screenWidth / 2, (float)screenHeight / 2, 0.0f, -1.0f, 1.0f);
 
     glUseProgram(renderer->shaderProgram); // Use the program to set uniforms
     glUniformMatrix4fv(glGetUniformLocation(renderer->shaderProgram, "projection"), 1, GL_FALSE, (const GLfloat *)renderer->projection);
@@ -272,13 +273,17 @@ int renderer_init(Renderer *renderer, size_t maxSprites, int screenWidth, int sc
     // Generazione delle mipmap (opzionale)
     // glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
 
+    // abilità il depth test
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL); // o GL_LESS, a seconda delle tue necessità
+
     return 1; // Indicate success
 }
 
 void renderer_begin_frame(Renderer *renderer)
 {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glUniform2f(cameraPosLoc, game.camera_pos[0], game.camera_pos[1]);
 }
@@ -312,6 +317,6 @@ size_t renderer_set_sprites(GameWorld *world, Sprite *drawing)
     memcpy(drawing, world->decorazioni, sizeof(Sprite) * world->count_decorazioni);
     count += world->count_decorazioni;
     // Copia i nemici nel buffer dopo le decorazioni
-    //memcpy(drawing + count, enemies, sizeof(Sprite) * world->count_enemies;
+    // memcpy(drawing + count, enemies, sizeof(Sprite) * world->count_enemies;
     return count;
 }

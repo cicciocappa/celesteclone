@@ -1,7 +1,7 @@
 #include "sprite.h"
 #include <stdlib.h> // For possible memory allocation, if needed
 
-void sprite_init(Sprite *sprite, float x, float y, float width, float height, vec2 uvStart, vec2 uvEnd, float layerIndex, float parallax)
+void sprite_init(Sprite *sprite, float x, float y, float width, float height, vec2 uvStart, vec2 uvEnd, float layerIndex, float parX, float parY, float zIndex)
 {
     sprite->position[0] = x;
     sprite->position[1] = y;
@@ -9,9 +9,11 @@ void sprite_init(Sprite *sprite, float x, float y, float width, float height, ve
     sprite->size[1] = height;
     sprite->rotation = 0.0f;
     vec2_dup(sprite->uvStart, uvStart); // Use linmath's vec2_dup for safe copying
-    vec2_dup(sprite->uvEnd, uvEnd); // Use linmath's vec2_dup for safe copying
+    vec2_dup(sprite->uvEnd, uvEnd);     // Use linmath's vec2_dup for safe copying
     sprite->layerIndex = layerIndex;
-    sprite->layerIndex = parallax;
+    sprite->parallaxFactorX = parX;
+    sprite->parallaxFactorY = parY;
+    sprite->zIndex = zIndex;
 }
 
 void sprite_update(Sprite *sprite, float deltaTime)
