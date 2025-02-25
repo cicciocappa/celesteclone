@@ -9,41 +9,61 @@
 <body>
     <h1>Editor</h1>
     <script type="module">
-       // Inizializza l'applicazione Pixi
-const app = new PIXI.Application({
-    width: 800,
-    height: 600,
-    backgroundColor: 0x1099bb,
-});
-document.body.appendChild(app.view);
 
-async function createSprite() {
-    try {
-        // Carica la texture in modo asincrono
-        const baseTexture = await PIXI.Texture.from('path/to/your/image.png'); // SOSTITUISCI con il tuo percorso
+        function aggiungi(ev){
+            console.log(ev);
+            const ns = new PIXI.Sprite(texture);
+            ns.x = ev.offsetX;
+            ns.y = ev.offsetY;
+            app.stage.addChild(ns);
+        }
 
-        // Definisci il rettangolo di ritaglio
-        const frame = new PIXI.Rectangle(10, 20, 50, 60);
+        // Inizializza l'applicazione Pixi
+        const app = new PIXI.Application();
 
-        // Crea la texture ritagliata
-        const croppedTexture = new PIXI.Texture(baseTexture, frame);
+        await app.init({ background: '#1099bb', width: 640, height: 360 });
+        document.body.appendChild(app.canvas);
+        app.canvas.addEventListener("click", aggiungi);
 
-        // Crea lo sprite
-        const sprite = new PIXI.Sprite(croppedTexture);
+        
 
-        // Aggiungi lo sprite alla scena
+        const image = await PIXI.Assets.load('test.png');
+        
+        const rect = new PIXI.Rectangle(0, 0, 32, 32);
+
+        const texture = new PIXI.Texture({ source: image, frame: rect });
+        const sprite = new PIXI.Sprite(texture);
         app.stage.addChild(sprite);
 
-        // Posiziona lo sprite
-        sprite.x = 100;
-        sprite.y = 150;
+        //app.stage.addChild(sprite);
+        /*
+        async function createSprite() {
+            try {
+                // Carica la texture in modo asincrono
+                const baseTexture = await PIXI.Texture.from('path/to/your/image.png'); // SOSTITUISCI con il tuo percorso
 
-    } catch (error) {
-        console.error("Errore durante il caricamento o la creazione dello sprite:", error);
-    }
-}
+                // Definisci il rettangolo di ritaglio
+                const frame = new PIXI.Rectangle(10, 20, 50, 60);
 
-createSprite();
+                // Crea la texture ritagliata
+                const croppedTexture = new PIXI.Texture(baseTexture, frame);
+
+                // Crea lo sprite
+                const sprite = new PIXI.Sprite(croppedTexture);
+
+                // Aggiungi lo sprite alla scena
+                app.stage.addChild(sprite);
+
+                // Posiziona lo sprite
+                sprite.x = 100;
+                sprite.y = 150;
+
+            } catch (error) {
+                console.error("Errore durante il caricamento o la creazione dello sprite:", error);
+            }
+        }
+
+        createSprite();
 
         // Add a ticker callback to move the sprite back and forth
         let elapsed = 0.0;
@@ -51,6 +71,7 @@ createSprite();
             elapsed += ticker.deltaTime;
             sprite.x = 100.0 + Math.cos(elapsed / 50.0) * 100.0;
         });
+        */
     </script>
 </body>
 
