@@ -14,7 +14,7 @@ struct SpriteData {
     float rotation;
     float parallaxFactorX;
     float parallaxFactorY;
-    float padding2;
+    vec3 color;
 };
 
 layout (std430, binding = 0) buffer SpriteBuffer {

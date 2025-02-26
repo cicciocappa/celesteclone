@@ -436,6 +436,12 @@
             texture = new PIXI.Texture({ source: image, frame: rect });
             const sprite = new PIXI.Sprite(texture);
             app.stage.addChild(sprite);
+
+            /*
+            const container = new Container();
+
+            app.stage.addChild(container);
+             */
         }
 
         function aggiungi(ev) {

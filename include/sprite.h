@@ -14,7 +14,7 @@ typedef struct
     float rotation;        // 4 bytes, offset 36
     float parallaxFactorX; // 4 bytes, offset 40 (ex padding2[0])
     float parallaxFactorY; // 4 bytes, offset 44 (ex padding2[1])
-    float padding2;        // 4 bytes, offset 48
+    vec3 color;        // 4 bytes, offset 48
 } Sprite;                  // Total: 52 bytes
 
 // Function declarations related to Sprite *data* manipulation
