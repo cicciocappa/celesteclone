@@ -1,0 +1,10 @@
+body {
+    margin: 0;
+    position: relative;
+}
+#canvas {
+    background-color: red;
+    position: absolute;
+    width: 1024px;
+    height: 512px;
+}
