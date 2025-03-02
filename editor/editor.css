@@ -1,10 +1,57 @@
 body {
     margin: 0;
     position: relative;
+    height: 100vh;
 }
 #canvas {
-    background-color: red;
+    background-color: #99ccff;
     position: absolute;
-    width: 1024px;
-    height: 512px;
+    top: 0;
+    left: 72px;
+    bottom: 24px;
+    right: 24px;
+}
+#toolbox {
+    background-color: #bbb;
+    position: absolute;
+    top: 0;
+    width: 72px;
+    bottom: 0;
+    position: absolute;
+    
+}
+#vscroll {
+    width: 24px;
+    right: 0;
+    bottom: 24px;
+    top: 0;
+    background-color: bisque;
+    position: absolute;
+}
+#hscroll {
+    height: 24px;
+    right: 24px;
+    bottom: 0;
+    left: 72px;
+    background-color: bisque;
+    position: absolute;
+}
+#toolbox > svg {
+    border-style: solid;
+    border-width: 2px;
+    border-top-color: #fff;
+    border-left-color: #fff;
+    border-bottom-color: #999;
+    border-right-color: #999;
+    padding: 1px;
+    display: inline-block;
+    cursor: pointer;
+}
+.active {
+    border-bottom-color: #fff;
+    border-right-color: #fff;
+    border-top-color: #999;
+    border-left-color: #999;
+    background-color: #ddd;
+    
 }
