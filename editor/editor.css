@@ -7,7 +7,7 @@ body {
     background-color: #99ccff;
     position: absolute;
     top: 0;
-    left: 72px;
+    left: 76px;
     bottom: 24px;
     right: 24px;
 }
@@ -15,10 +15,11 @@ body {
     background-color: #bbb;
     position: absolute;
     top: 0;
-    width: 72px;
+    width: 76px;
     bottom: 0;
     position: absolute;
-    
+    padding-top: 2px;
+    text-align: center;
 }
 #vscroll {
     width: 24px;
@@ -54,4 +55,21 @@ body {
     border-left-color: #999;
     background-color: #ddd;
     
+}
+#hscroll>div {
+    width: 40px;
+    height: 18px;
+}
+#vscroll>div {
+    height: 30px;
+    width: 18px;
+}
+#hscroll>div, #vscroll > div {
+    position: absolute;
+    border-style: solid;
+    border-top-color: #fff;
+    border-left-color: #fff;
+    border-bottom-color: #999;
+    border-right-color: #999;
+    background-color: #bbb;
 }
