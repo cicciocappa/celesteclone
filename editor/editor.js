@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const hscroll = document.getElementById('hscroll');
     const vscroll = document.getElementById('vscroll');
     const hThumb = hscroll.querySelector('div');
@@ -11,10 +11,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let maxH, maxV;
     let valueH = 0;
     let valueV = 0;
+    let app, texture;
+    let viewportWidth, viewportHeight;
 
     function calculateMaxValues() {
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
+        viewportWidth = window.innerWidth - 100 ;
+        viewportHeight = window.innerHeight - 24;
         maxH = Math.max(16384 - viewportWidth, 0);
         maxV = Math.max(16384 - viewportHeight, 0);
     }
@@ -39,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inizializzazione
     calculateMaxValues();
     updateThumbs();
+    await init();
 
     // Eventi per la scrollbar orizzontale
     hThumb.addEventListener('mousedown', (e) => {
@@ -103,4 +106,38 @@ document.addEventListener('DOMContentLoaded', () => {
         valueV = Math.min(valueV, maxV);
         updateThumbs();
     });
+
+    async function init() {
+
+        app = new PIXI.Application();
+
+        await app.init({ background: '#1099bb', width: viewportWidth, height: viewportHeight });
+        document.querySelector("#canvas").appendChild(app.canvas);
+        app.canvas.addEventListener("click", aggiungi);
+
+
+
+        const image = await PIXI.Assets.load('test.png');
+
+        const rect = new PIXI.Rectangle(0, 0, 32, 32);
+
+        texture = new PIXI.Texture({ source: image, frame: rect });
+        const sprite = new PIXI.Sprite(texture);
+        app.stage.addChild(sprite);
+
+        /*
+        const container = new Container();
+    
+        app.stage.addChild(container);
+         */
+    }
+    function aggiungi(ev) {
+        console.log(ev);
+        const ns = new PIXI.Sprite(texture);
+        ns.x = ev.offsetX;
+        ns.y = ev.offsetY;
+        app.stage.addChild(ns);
+    }
 });
+
+
