@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const hThumb = hscroll.querySelector('div');
     const vThumb = vscroll.querySelector('div');
 
+    const atlas = [[0,0,16,16],[16,0,16,16],[32,0,16,16]];
+
     let isDraggingH = false;
     let isDraggingV = false;
     let startX, startY;
@@ -11,7 +13,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let maxH, maxV;
     let valueH = 0;
     let valueV = 0;
-    let app, texture;
+    let app, texture, container;
     let viewportWidth, viewportHeight;
 
     function calculateMaxValues() {
@@ -67,6 +69,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         hThumb.style.left = newLeft + 'px';
         valueH = Math.round((newLeft / availableWidth) * maxH);
+        container.x = -valueH;
     });
 
     // Eventi per la scrollbar verticale
@@ -93,6 +96,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         vThumb.style.top = newTop + 'px';
         valueV = Math.round((newTop / availableHeight) * maxV);
+        container.y = -valueV;
     });
 
     document.addEventListener('mouseup', () => {
@@ -114,16 +118,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         await app.init({ background: '#1099bb', width: viewportWidth, height: viewportHeight });
         document.querySelector("#canvas").appendChild(app.canvas);
         app.canvas.addEventListener("click", aggiungi);
-
-
+        container = new PIXI.Container();
+        app.stage.addChild(container);
 
         const image = await PIXI.Assets.load('test.png');
 
-        const rect = new PIXI.Rectangle(0, 0, 32, 32);
+        const rect = new PIXI.Rectangle(0, 0, 16, 16);
 
         texture = new PIXI.Texture({ source: image, frame: rect });
         const sprite = new PIXI.Sprite(texture);
-        app.stage.addChild(sprite);
+        container.addChild(sprite);
 
         /*
         const container = new Container();
@@ -134,9 +138,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     function aggiungi(ev) {
         console.log(ev);
         const ns = new PIXI.Sprite(texture);
-        ns.x = ev.offsetX;
-        ns.y = ev.offsetY;
-        app.stage.addChild(ns);
+        ns.x = ev.offsetX + valueH;
+        ns.y = ev.offsetY + valueV;
+        container.addChild(ns);
     }
 });
 
