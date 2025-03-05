@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const vscroll = document.getElementById('vscroll');
     const hThumb = hscroll.querySelector('div');
     const vThumb = vscroll.querySelector('div');
+    const currSprite = document.getElementById('currsprite');
 
     const NUM_ATLAS = 1;
 
@@ -11,7 +12,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         [[0,0,16,16],[16,0,16,16],[32,0,16,16]]
     ];
     const grid = [];
-
+    const images = [];
     let isDraggingH = false;
     let isDraggingV = false;
     let startX, startY;
@@ -21,6 +22,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let valueV = 0;
     let app, texture, container;
     let viewportWidth, viewportHeight;
+    let currAtlas = 0;
 
     function calculateMaxValues() {
         viewportWidth = window.innerWidth - 100 ;
@@ -127,11 +129,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         container = new PIXI.Container();
         app.stage.addChild(container);
 
-        const image = await PIXI.Assets.load('test.png');
+        for (let i=0;i<NUM_ATLAS;i++) {
+            images[i] = await PIXI.Assets.load('test.png');
+        }
+
+        
 
         const rect = new PIXI.Rectangle(0, 0, 16, 16);
 
-        texture = new PIXI.Texture({ source: image, frame: rect });
+        texture = new PIXI.Texture({ source: images[currAtlas], frame: rect });
         const sprite = new PIXI.Sprite(texture);
         container.addChild(sprite);
 
