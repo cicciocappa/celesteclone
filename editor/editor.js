@@ -4,7 +4,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const hThumb = hscroll.querySelector('div');
     const vThumb = vscroll.querySelector('div');
 
-    const atlas = [[0,0,16,16],[16,0,16,16],[32,0,16,16]];
+    const NUM_ATLAS = 1;
+
+    const atlas = [
+        // atlas 0
+        [[0,0,16,16],[16,0,16,16],[32,0,16,16]]
+    ];
+    const grid = [];
 
     let isDraggingH = false;
     let isDraggingV = false;
