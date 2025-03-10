@@ -3,13 +3,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     const vscroll = document.getElementById('vscroll');
     const hThumb = hscroll.querySelector('div');
     const vThumb = vscroll.querySelector('div');
-    const currSprite = document.getElementById('currsprite');
+    const spritePicker = document.getElementById('currsprite');
+    const tintPicker = document.getElementById('currtint');
+    const toolboox = document.getElementById('toolbox');
+    let tool = "";
+    let oldtool = "";
 
     const NUM_ATLAS = 1;
 
     const atlas = [
         // atlas 0
-        [[0,0,16,16],[16,0,16,16],[32,0,16,16]]
+        [[0, 0, 16, 16], [16, 0, 16, 16], [32, 0, 16, 16]]
     ];
     const grid = [];
     const images = [];
@@ -20,12 +24,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     let maxH, maxV;
     let valueH = 0;
     let valueV = 0;
-    let app, texture, container;
+    let app, texture, container, preview;
     let viewportWidth, viewportHeight;
     let currAtlas = 0;
 
+
     function calculateMaxValues() {
-        viewportWidth = window.innerWidth - 100 ;
+        viewportWidth = window.innerWidth - 100;
         viewportHeight = window.innerHeight - 24;
         maxH = Math.max(16384 - viewportWidth, 0);
         maxV = Math.max(16384 - viewportHeight, 0);
@@ -52,6 +57,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     calculateMaxValues();
     updateThumbs();
     await init();
+
+    // Gestione Eventi
+    toolboox.addEventListener('click', (e) => {
+        const target = e.target.closest("[data-cmd]"); // Cerca l'elemento più vicino con data-cmd
+        if (target) {
+            const cmd = target.getAttribute("data-cmd");
+            switch (cmd) {
+                case "layers":
+                    alert("todo: mostro selezione layers");
+                    break;
+                case "sprite":
+                    alert("todo: mostro selezione sprite");
+                    break;
+                default:
+                    activateTool(cmd);
+                    break;
+            }
+        }
+
+    });
+    spritePicker.addEventListener('click', (e) => { });
 
     // Eventi per la scrollbar orizzontale
     hThumb.addEventListener('mousedown', (e) => {
@@ -125,21 +151,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         await app.init({ background: '#1099bb', width: viewportWidth, height: viewportHeight });
         document.querySelector("#canvas").appendChild(app.canvas);
-        app.canvas.addEventListener("click", aggiungi);
+        app.canvas.addEventListener("mousedown", processAction);
         container = new PIXI.Container();
+        preview = new PIXI.Container();
         app.stage.addChild(container);
-
-        for (let i=0;i<NUM_ATLAS;i++) {
+        app.stage.addChild(preview);
+        for (let i = 0; i < NUM_ATLAS; i++) {
             images[i] = await PIXI.Assets.load('test.png');
         }
 
-        
+
 
         const rect = new PIXI.Rectangle(0, 0, 16, 16);
 
         texture = new PIXI.Texture({ source: images[currAtlas], frame: rect });
         const sprite = new PIXI.Sprite(texture);
-        container.addChild(sprite);
+        preview.addChild(sprite);
 
         /*
         const container = new Container();
@@ -147,12 +174,34 @@ document.addEventListener('DOMContentLoaded', async () => {
         app.stage.addChild(container);
          */
     }
-    function aggiungi(ev) {
-        console.log(ev);
-        const ns = new PIXI.Sprite(texture);
-        ns.x = ev.offsetX + valueH;
-        ns.y = ev.offsetY + valueV;
-        container.addChild(ns);
+    function processAction(ev) {
+        switch (tool) {
+            case "draw":
+                const ns = new PIXI.Sprite(texture);
+                ns.x = ev.offsetX + valueH;
+                ns.y = ev.offsetY + valueV;
+                container.addChild(ns);
+                break;
+            case "move":
+                
+                break;    
+            default:
+                break;
+        }
+
+
+    }
+
+    function activateTool(cmd) {
+        if (cmd !== oldtool) {
+            if (oldtool) {
+                toolboox.querySelector(`svg[data-cmd="${oldtool}"]`).classList.remove("active");
+            }
+            tool = cmd;
+            oldtool = tool;
+            toolboox.querySelector(`svg[data-cmd="${tool}"]`).classList.add("active");
+        }
+
     }
 });
 

@@ -49,10 +49,10 @@ body {
     cursor: pointer;
 }
 .active {
-    border-bottom-color: #fff;
-    border-right-color: #fff;
-    border-top-color: #999;
-    border-left-color: #999;
+    border-bottom-color: #fff !important;
+    border-right-color: #fff !important;
+    border-top-color: #999 !important;
+    border-left-color: #999 !important;
     background-color: #ddd;
     
 }
@@ -90,3 +90,4 @@ body {
     border: 1px solid #000;
 
 }
+ 
