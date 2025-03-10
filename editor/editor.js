@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let tool = "";
     let oldtool = "";
 
+
     const NUM_ATLAS = 1;
 
     const atlas = [
@@ -24,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let maxH, maxV;
     let valueH = 0;
     let valueV = 0;
-    let app, texture, container, preview;
+    let app, texture, container, preview, previewSprite;
     let viewportWidth, viewportHeight;
     let currAtlas = 0;
 
@@ -151,7 +152,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         await app.init({ background: '#1099bb', width: viewportWidth, height: viewportHeight });
         document.querySelector("#canvas").appendChild(app.canvas);
-        app.canvas.addEventListener("mousedown", processAction);
+        app.canvas.addEventListener("mousedown", canvasDown);
+        app.canvas.addEventListener("mousemove", canvasMove);
+        app.canvas.addEventListener("mouseup", canvasUp);
         container = new PIXI.Container();
         preview = new PIXI.Container();
         app.stage.addChild(container);
@@ -165,8 +168,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         const rect = new PIXI.Rectangle(0, 0, 16, 16);
 
         texture = new PIXI.Texture({ source: images[currAtlas], frame: rect });
-        const sprite = new PIXI.Sprite(texture);
-        preview.addChild(sprite);
+        previewSprite = new PIXI.Sprite(texture);
+        preview.addChild(previewSprite);
+        preview.visible = false;
 
         /*
         const container = new Container();
@@ -174,7 +178,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         app.stage.addChild(container);
          */
     }
-    function processAction(ev) {
+    function canvasDown(ev) {
         switch (tool) {
             case "draw":
                 const ns = new PIXI.Sprite(texture);
@@ -183,8 +187,39 @@ document.addEventListener('DOMContentLoaded', async () => {
                 container.addChild(ns);
                 break;
             case "move":
-                
-                break;    
+
+                break;
+            default:
+                break;
+        }
+
+
+    }
+
+    function canvasUp(ev) {
+        switch (tool) {
+            case "draw":
+
+                break;
+            case "move":
+
+                break;
+            default:
+                break;
+        }
+
+
+    }
+
+    function canvasMove(ev) {
+        switch (tool) {
+            case "draw":
+                previewSprite.x = ev.offsetX;
+                previewSprite.y = ev.offsetY;
+                break;
+            case "move":
+
+                break;
             default:
                 break;
         }
@@ -200,6 +235,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             tool = cmd;
             oldtool = tool;
             toolboox.querySelector(`svg[data-cmd="${tool}"]`).classList.add("active");
+
+            preview.visible = tool === "draw";
+
         }
 
     }
