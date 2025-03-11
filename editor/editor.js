@@ -159,6 +159,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         app.canvas.addEventListener("mousemove", canvasMove);
         app.canvas.addEventListener("mouseup", canvasUp);
         app.canvas.addEventListener("wheel", mouseWheel);
+        app.canvas.addEventListener("contextmenu", rightClick);
         container = new PIXI.Container();
         preview = new PIXI.Container();
         app.stage.addChild(container);
@@ -187,14 +188,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     function canvasDown(ev) {
         switch (tool) {
             case "draw":
-                const ns = new PIXI.Sprite(texture);
-                ns.anchor.set(0.5);
-                ns.x = ev.offsetX + valueH;
-                ns.y = ev.offsetY + valueV;
-                ns.rotation = rotazioneCorrente;
-                ns.scale.x = scalaCorrenteX;
-                ns.scale.y = scalaCorrenteY;
-                container.addChild(ns);
+               
+                if (ev.button === 0) {
+                    const ns = new PIXI.Sprite(texture);
+                    ns.anchor.set(0.5);
+                    ns.x = ev.offsetX + valueH;
+                    ns.y = ev.offsetY + valueV;
+                    ns.rotation = rotazioneCorrente;
+                    ns.scale.x = scalaCorrenteX;
+                    ns.scale.y = scalaCorrenteY;
+                    container.addChild(ns);
+
+                }
                 break;
             case "move":
 
@@ -213,12 +218,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             case "draw":
                 let alt = true;
                 if (ev.shiftKey) {
-                    scalaCorrenteX += dir ? 0.1 : -0.1;
+                    scalaCorrenteX += dir ? 0.2 : -0.2;
                     previewSprite.scale.x = scalaCorrenteX;
                     alt = false;
                 }
                 if (ev.ctrlKey) {
-                    scalaCorrenteY += dir ? 0.1 : -0.1;
+                    scalaCorrenteY += dir ? 0.2 : -0.2;
                     previewSprite.scale.y = scalaCorrenteY;
                     alt = false;
                 }
@@ -260,6 +265,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
 
+    }
+
+    function rightClick(ev) {
+        ev.preventDefault();
+        rotazioneCorrente = 0;
+        scalaCorrenteX = 1;
+        scalaCorrenteY = 1;
+        previewSprite.rotation = 0;
+        previewSprite.scale.x = 1;
+        previewSprite.scale.y = 1;
     }
 
     function activateTool(cmd) {
