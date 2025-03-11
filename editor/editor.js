@@ -8,6 +8,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const toolboox = document.getElementById('toolbox');
     let tool = "";
     let oldtool = "";
+    let scalaCorrenteX = 1;
+    let scalaCorrenteY = 1;
+    let rotazioneCorrente = 0;
 
 
     const NUM_ATLAS = 1;
@@ -155,6 +158,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         app.canvas.addEventListener("mousedown", canvasDown);
         app.canvas.addEventListener("mousemove", canvasMove);
         app.canvas.addEventListener("mouseup", canvasUp);
+        app.canvas.addEventListener("wheel", mouseWheel);
         container = new PIXI.Container();
         preview = new PIXI.Container();
         app.stage.addChild(container);
@@ -171,6 +175,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         previewSprite = new PIXI.Sprite(texture);
         preview.addChild(previewSprite);
         preview.visible = false;
+        previewSprite.anchor.set(0.5);
 
         /*
         const container = new Container();
@@ -178,12 +183,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         app.stage.addChild(container);
          */
     }
+
     function canvasDown(ev) {
         switch (tool) {
             case "draw":
                 const ns = new PIXI.Sprite(texture);
+                ns.anchor.set(0.5);
                 ns.x = ev.offsetX + valueH;
                 ns.y = ev.offsetY + valueV;
+                ns.rotation = rotazioneCorrente;
+                ns.scale.x = scalaCorrenteX;
+                ns.scale.y = scalaCorrenteY;
                 container.addChild(ns);
                 break;
             case "move":
@@ -194,6 +204,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
 
+    }
+
+    function mouseWheel(ev) {
+        ev.preventDefault();
+        const dir = ev.deltaY > 0;
+        switch (tool) {
+            case "draw":
+                let alt = true;
+                if (ev.shiftKey) {
+                    scalaCorrenteX += dir ? 0.1 : -0.1;
+                    previewSprite.scale.x = scalaCorrenteX;
+                    alt = false;
+                }
+                if (ev.ctrlKey) {
+                    scalaCorrenteY += dir ? 0.1 : -0.1;
+                    previewSprite.scale.y = scalaCorrenteY;
+                    alt = false;
+                }
+                if (alt) {
+                    rotazioneCorrente += dir ? 0.1 : -0.1;
+                    previewSprite.rotation = rotazioneCorrente;
+                }
+                break;
+        }
     }
 
     function canvasUp(ev) {
@@ -216,6 +250,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             case "draw":
                 previewSprite.x = ev.offsetX;
                 previewSprite.y = ev.offsetY;
+
                 break;
             case "move":
 
