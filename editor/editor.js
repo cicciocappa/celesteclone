@@ -149,6 +149,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateThumbs();
     });
 
+    function tabAtlas(n){
+        alert(n);
+    }
+
     async function init() {
 
         app = new PIXI.Application();
@@ -166,6 +170,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         app.stage.addChild(preview);
         for (let i = 0; i < NUM_ATLAS; i++) {
             images[i] = await PIXI.Assets.load('test.png');
+            // creo il pulsante di selezione
+            const puls = document.createElement("div");
+            puls.textContent = i;
+            puls.addEventListener("click", ()=>tabAtlas(i));
+            document.getElementById("atlaslist").appendChild(puls);
         }
 
 
